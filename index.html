@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Up — интернет-магазин кроссовок в г.Худжанд</title>
+    <meta name="description" content="Кроссовки высшего качества. Быстрая доставка по г.Худжанд.">
+    <link rel="icon" type="image/svg" href="img/favicon.svg">
+    <link rel="preload" as="image" href="https://image.qwenlm.ai/public_source/74625fe3-b517-4440-bab1-7e88dbedd8a8/1016df3a2-0ec4-4b0f-9176-24435663f059.png">
+
+    <!-- Шрифты -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/unbounded@latest/cyrillic-500-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/unbounded@latest/cyrillic-700-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/unbounded@latest/cyrillic-900-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/manrope@latest/cyrillic-400-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/manrope@latest/cyrillic-500-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/manrope@latest/cyrillic-600-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/manrope@latest/cyrillic-700-normal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/manrope@latest/cyrillic-800-normal.css">
+
+    <!-- Стили сайта -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="hdr">
+    <div class="wrap hdr-in">
+        <a class="brand" data-action="go-home">
+            <img src="img/logo.svg" alt="ШАГ логотип">
+        </a>
+        <nav>
+            <a data-action="scroll-to" data-target="catalog">Каталог</a>
+            <a data-action="scroll-to" data-target="info">Доставка и возврат</a>
+            <a data-action="scroll-to" data-target="contacts">Контакты</a>
+        </nav>
+        <button class="cart-btn" data-action="open-cart" aria-label="Открыть корзину">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.6"/><circle cx="19" cy="21" r="1.6"/><path d="M2 3h3l2.7 12.4A2 2 0 0 0 9.7 17h9.7a2 2 0 0 0 2-1.6L23 7H6"/></svg>
+            Корзина <span class="cart-count" id="cartCount">0</span>
+        </button>
+    </div>
+</header>
+
+<main>
+    <!-- ================= HOME ================= -->
+    <div class="view active" id="view-home">
+        <div class="hero">
+            <div class="wrap hero-in">
+                <div>
+                    <span class="hero-kicker">Премиальное качество</span>
+                    <h1>Кроссовки и кеды <em>на все </em>случаи жизни</h1>
+                    <p>Модели для города, бега и активного образа жизни. Бесплатная доставка по г.Худжанд</p>
+                    <div class="hero-cta">
+                        <button class="btn btn-acc" data-action="scroll-to" data-target="catalog">Смотреть каталог</button>
+                        <button class="btn btn-ghost" data-action="scroll-to" data-target="info">Условия доставки</button>
+                    </div>
+                    <div class="hero-stats">
+                        <div><b>25+</b><span>моделей в наличии</span></div>
+                        <div><b>1–2</b><span>дней доставка</span></div>
+                    </div>
+                </div>
+                <div class="hero-img">
+                    <img src="https://i.pinimg.com/1200x/d2/6d/1b/d26d1ba760d2f57f6937748a97a6f025.jpg" alt="Кроссовки Step Up" width="600" height="600">
+                </div>
+            </div>
+        </div>
+
+        <div class="marquee" aria-hidden="true">
+            <div class="marquee-track" id="marqueeTrack"></div>
+        </div>
+
+        <section id="catalog">
+            <div class="wrap">
+                <div class="sec-head">
+                    <h2 class="sec-title">Каталог <i>//</i> все модели</h2>
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input id="searchInput" type="search" placeholder="Поиск модели…">
+                        </div>
+                        <select class="sel" id="sortSelect">
+                            <option value="default">По умолчанию</option>
+                            <option value="price-asc">Сначала дешевле</option>
+                            <option value="price-desc">Сначала дороже</option>
+                            <option value="name">По названию</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chips" id="filterChips" style="margin-bottom:22px">
+                    <button class="chip on" data-filter="all">Все</button>
+                    <button class="chip" data-filter="new">Новинки</button>
+                    <button class="chip" data-filter="hit">Хиты продаж</button>
+                    <button class="chip" data-filter="sale">Со скидкой</button>
+                </div>
+                <div class="grid" id="catalogGrid"></div>
+            </div>
+        </section>
+
+        <section class="info" id="info">
+            <div class="wrap">
+                <h2 class="sec-title" style="margin-bottom:26px">Почему <i>Step Up?</i></h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h-2v-11a1 1 0 0 1 1-1h9v12"/><path d="M13 5h5l4 5v7h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></div>
+                        <h3>Доставка по городу</h3>
+                        <p>Бесплатная доставка по г.Худжанд.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></div>
+                        <h3>Возврат, если размер не подошёл</h3>
+                        <p>Не подошёл размер или цвет? Обменяем или вернём деньги без лишних вопросов.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                        <h3>Только премиальное качество</h3>
+                        <p>Отбираем лучшие модели и следим за качеством каждой пары.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= CHECKOUT ================= -->
+    <div class="view" id="view-checkout">
+        <section>
+            <div class="wrap">
+                <button class="crumb" data-action="go-home">← Вернуться в каталог</button>
+                <div class="co-grid">
+                    <form class="panel" id="checkoutForm" novalidate>
+                        <h2>Оформление заказа</h2>
+                        <div class="f-row"><label>Ваше имя *</label><input name="name" id="fName" placeholder="Иван Иванов" autocomplete="name"></div>
+                        <div class="f-2">
+                            <div class="f-row"><label>Телефон *</label><input name="phone" id="fPhone" placeholder="+992 (__) ___-__-__" autocomplete="tel" inputmode="tel"></div>
+                            <div class="f-row"><label>Город *</label><input name="city" id="fCity" placeholder="Худжанд" autocomplete="address-level2"></div>
+                        </div>
+                        <div class="f-row"><label>Адрес доставки *</label><input name="address" id="fAddress" placeholder="Улица, дом, квартира"></div>
+                        <div class="f-row"><label>Комментарий</label><textarea name="comment" id="fComment" placeholder="Например: позвонить за час до доставки"></textarea></div>
+                        <button class="btn btn-acc" style="width:100%" type="submit">Подтвердить заказ</button>
+                        <p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Нажимая кнопку, вы соглашаетесь с условиями обработки персональных данных.</p>
+                    </form>
+                    <aside class="panel">
+                        <h2>Ваш заказ</h2>
+                        <div id="checkoutSummary"></div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= SUCCESS ================= -->
+    <div class="view" id="view-success">
+        <section>
+            <div class="wrap">
+                <div class="success-box">
+                    <div class="ok-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5.5 5.5L20 6.5"/></svg></div>
+                    <h2>Заказ <span class="ord-id" id="successId"></span> принят!</h2>
+                    <p id="successText">Спасибо! Мы свяжемся с вами в ближайшее время для подтверждения. Детали заказа отправлены на e-mail магазина.</p>
+                    <button class="btn btn-dark" data-action="go-home">Вернуться в каталог</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= ADMIN ================= -->
+    <div class="view" id="view-admin">
+        <section>
+            <div class="wrap">
+                <div class="admin-top">
+                    <div>
+                        <button class="crumb" data-action="go-home" style="margin-bottom:6px">← На сайт</button>
+                        <h2 class="sec-title">Админ-<i>панель</i></h2>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button class="btn btn-acc" data-action="prod-new" style="padding:12px 22px;font-size:14px">+ Добавить товар</button>
+                        <button class="btn btn-line" data-action="admin-logout" style="padding:12px 22px;font-size:14px">Выйти</button>
+                    </div>
+                </div>
+                <div class="stats" id="adminStats"></div>
+                <div class="tabs">
+                    <button class="tab on" data-action="admin-tab" data-tab="products">Товары</button>
+                    <button class="tab" data-action="admin-tab" data-tab="orders">Заказы <span id="ordersTabCount"></span></button>
+                </div>
+                <div id="adminProducts"></div>
+                <div id="adminOrders" class="hidden"></div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer id="contacts">
+    <div class="wrap">
+        <div class="foot-grid">
+            <div>
+                <div class="foot-brand"><img src="img/foot-logo.svg" alt=""></div>
+                <p style="font-size:14px;max-width:34ch">Интернет-магазин кроссовок</p>
+            </div>
+            <div>
+                <h4>Покупателям</h4>
+                <a data-action="scroll-to" data-target="catalog">Каталог</a>
+                <a data-action="scroll-to" data-target="info">Доставка и возврат</a>
+                <a data-action="open-cart">Корзина</a>
+            </div>
+            <div>
+                <h4>Контакты</h4>
+                <a href="tel:+992113137377">+992 (11) 313-73-77</a>
+                <a href="mailto:stepupkhujand@gmail.com">stepupkhujand@gmail.com</a>
+                <a>Ежедневно 10:00–21:00</a>
+            </div>
+        </div>
+        <div class="foot-bottom">
+            <span>© 2026 Step Up. Все права защищены.</span>
+            <button class="admin-link" data-action="admin-open">⚙ Панель администратора</button>
+        </div>
+    </div>
+</footer>
+
+<!-- ================= CART DRAWER ================= -->
+<div class="overlay" id="overlay" data-action="close-cart"></div>
+<aside class="drawer" id="cartDrawer" aria-label="Корзина">
+    <div class="drawer-head">
+        <h3>Корзина <span id="drawerCount" style="color:var(--muted)"></span></h3>
+        <button class="icon-btn" data-action="close-cart" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="drawer-body" id="cartBody"></div>
+    <div class="drawer-foot" id="cartFoot">
+        <div class="total-row"><span>Итого:</span><b id="cartTotal">0 ₽</b></div>
+        <button class="btn btn-acc" style="width:100%" data-action="go-checkout">Оформить заказ</button>
+    </div>
+</aside>
+
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal">
+    <div class="modal-bg" data-action="modal-close"></div>
+    <div class="modal-box">
+        <button class="icon-btn modal-x" data-action="modal-close" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText"></span></div>
+
+<!-- Логика сайта -->
+<script src="script.js"></script>
+</body>
+</html>
