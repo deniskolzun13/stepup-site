@@ -26,7 +26,12 @@ const CONFIG = {
     shopName: 'StepUp',
     adminEmail: 'fakhriddinabdurahimov8@gmail.com',
     adminPass: 'stepup2026',
+    supabaseUrl: 'https://hishtvbwtnpmynyaoljw.supabase.co',
+    supabaseKey: 'sb_publishable_ce4j4wticSSbOvtXG-DY5A_ryuo3L95',
 };
+const sbc = (window.supabase && window.supabase.createClient)
+    ? window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey)
+    : null;
 
 const IMG = {
     p1:'https://image.qwenlm.ai/public_source/74625fe3-b517-4440-bab1-7e88dbedd8a8/19a2757aa-f5de-4282-a049-0073349e75d2.png',
@@ -76,6 +81,59 @@ save(LS.p, products);
 
 let ui = { filter:'all', search:'', sort:'default', adminTab:'products', editId:null };
 let confirmCb = null;
+
+/* 2.1 ОБЛАКО: товары и заказы в Supabase, изменения видны всем */
+function mapIn(p){
+    return {id:p.id, name:p.name, price:p.price, oldPrice:(p.old_price===undefined?p.oldPrice:p.old_price)||null,
+        tag:p.tag||'', active:p.active!==false, img:p.img||'', desc:(p.descr===undefined?p.desc:p.descr)||'',
+        sizes:Array.isArray(p.sizes)?p.sizes:[], sort:p.sort||0};
+}
+function mapOut(p){
+    return {id:p.id, name:p.name, price:p.price, old_price:p.oldPrice||null, tag:p.tag||'', active:!!p.active,
+        img:p.img||'', descr:p.desc||'', sizes:p.sizes||[], sort:p.sort||0, updated_at:new Date().toISOString()};
+}
+async function cloudUpsertProduct(p){
+    if(!sbc) return;
+    try{ const {error} = await sbc.from('products').upsert(mapOut(p)); if(error) throw error; }
+    catch(e){ console.warn(e); toast('Нет связи с базой, изменение не сохранено'); }
+}
+async function cloudDeleteProduct(id){
+    if(!sbc) return;
+    try{ await sbc.from('products').delete().eq('id', id); }catch(e){ console.warn(e); }
+}
+async function cloudSaveOrder(o){
+    if(!sbc) return;
+    try{ const {error} = await sbc.from('orders').upsert({id:o.id, status:o.status, customer:o.customer, items:o.items, total:o.total}); if(error) throw error; }
+    catch(e){ console.warn(e); }
+}
+async function cloudDeleteOrder(id){
+    if(!sbc) return;
+    try{ await sbc.from('orders').delete().eq('id', id); }catch(e){ console.warn(e); }
+}
+async function cloudLoadProducts(){
+    if(!sbc) return;
+    try{
+        const {data, error} = await sbc.from('products').select('*').order('sort').order('name');
+        if(error) throw error;
+        if(data && data.length){ products = data.map(mapIn); save(LS.p, products); }
+    }catch(e){ console.warn(e); }
+}
+async function cloudLoadOrders(){
+    if(!sbc) return;
+    try{
+        const {data, error} = await sbc.from('orders').select('*').order('created_at', {ascending:false});
+        if(error) throw error;
+        if(data){
+            orders = data.map(o=>({id:o.id, date:new Date(o.created_at).getTime(), status:o.status, customer:o.customer, items:o.items, total:o.total}));
+            save(LS.o, orders);
+        }
+    }catch(e){ console.warn(e); }
+}
+async function adminLogin(pass){
+    if(!sbc) return false;
+    const { data, error } = await sbc.auth.signInWithPassword({ email: CONFIG.adminEmail, password: pass });
+    return !error && !!data.user;
+}
 
 /* =========================================================
    3. УТИЛИТЫ
@@ -276,7 +334,7 @@ function submitOrder(){
         }),
         total: cartTotal()
     };
-    orders.unshift(order); save(LS.o, orders);
+    orders.unshift(order); save(LS.o, orders); cloudSaveOrder(order);
     cart = []; save(LS.c, cart); updateBadge(); renderCart();
     $('checkoutForm').reset();
     $('successId').textContent = order.id;
@@ -321,6 +379,7 @@ function adminOpen(){
 const STATUS = {new:'Новый', progress:'В работе', done:'Выполнен', cancel:'Отменён'};
 
 function renderAdmin(){
+    if(sbc && isAdmin()){ cloudLoadOrders().then(()=>{ if(isAdmin() && $('adminStats')) renderAdmin(); }); }
     const revenue = orders.filter(o=>o.status!=='cancel').reduce((s,o)=>s+o.total,0);
     $('adminStats').innerHTML = `
     <div class="stat"><b>${products.length}</b><span>Товаров</span></div>
@@ -439,7 +498,9 @@ function saveProduct(){
         products.push({id:'p'+Date.now().toString(36), ...data});
         toast('Товар добавлен в каталог', true);
     }
-    save(LS.p, products); closeModal(); renderCatalog(); renderAdmin();
+    save(LS.p, products);
+    cloudUpsertProduct(ui.editId ? products.find(p=>p.id===ui.editId) : products[products.length-1]);
+    closeModal(); renderCatalog(); renderAdmin();
 }
 
 /* =========================================================
@@ -492,18 +553,18 @@ document.addEventListener('click', e=>{
     if(a==='prod-new'){ ui.editId=null; productForm(null); }
     if(a==='prod-edit'){ ui.editId=id; productForm(products.find(p=>p.id===id)); }
     if(a==='prod-toggle'){
-        const p = products.find(x=>x.id===id); if(p){ p.active=!p.active; save(LS.p,products); renderCatalog(); renderAdmin(); toast(p.active?'Товар опубликован':'Товар скрыт', p.active); }
+        const p = products.find(x=>x.id===id); if(p){ p.active=!p.active; save(LS.p,products); cloudUpsertProduct(p); renderCatalog(); renderAdmin(); toast(p.active?'Товар опубликован':'Товар скрыт', p.active); }
     }
     if(a==='prod-del'){
         askConfirm('Удалить товар без возможности восстановления?', ()=>{
             products = products.filter(p=>p.id!==id);
             cart = cart.filter(i=>i.id!==id);
-            save(LS.p,products); save(LS.c,cart); updateBadge(); renderCatalog(); renderAdmin(); renderCart(); toast('Товар удалён');
+            save(LS.p,products); save(LS.c,cart); cloudDeleteProduct(id); updateBadge(); renderCatalog(); renderAdmin(); renderCart(); toast('Товар удалён');
         });
     }
     if(a==='order-del'){
         askConfirm('Удалить заказ '+id+'?', ()=>{
-            orders = orders.filter(o=>o.id!==id); save(LS.o,orders); renderAdmin(); toast('Заказ удалён');
+            orders = orders.filter(o=>o.id!==id); save(LS.o,orders); cloudDeleteOrder(id); renderAdmin(); toast('Заказ удалён');
         });
     }
 });
@@ -520,7 +581,7 @@ document.addEventListener('change', e=>{
     }
     if(el.dataset.action==='order-status'){
         const o = orders.find(x=>x.id===el.dataset.id);
-        if(o){ o.status = el.value; save(LS.o,orders); renderAdmin(); toast('Статус заказа: '+STATUS[o.status], true); }
+        if(o){ o.status = el.value; save(LS.o,orders); cloudSaveOrder(o); renderAdmin(); toast('Статус заказа: '+STATUS[o.status], true); }
     }
 });
 
@@ -528,9 +589,12 @@ document.addEventListener('submit', e=>{
     if(e.target.id==='checkoutForm'){ e.preventDefault(); submitOrder(); }
     if(e.target.id==='loginForm'){
         e.preventDefault();
-        if($('loginPass').value === CONFIG.adminPass){
-            sessionStorage.setItem('shag_admin','1'); closeModal(); renderAdmin(); show('admin'); toast('Добро пожаловать в админ-панель', true);
-        } else toast('Неверный пароль');
+        const btn = e.target.querySelector('button[type="submit"]'); if(btn) btn.disabled = true;
+        adminLogin($('loginPass').value.trim()).then(ok=>{
+            if(btn) btn.disabled = false;
+            if(ok){ sessionStorage.setItem('shag_admin','1'); closeModal(); renderAdmin(); show('admin'); toast('Добро пожаловать в админ-панель', true); }
+            else toast('Неверный пароль');
+        });
     }
     if(e.target.id==='productForm'){ e.preventDefault(); saveProduct(); }
 });
@@ -561,6 +625,7 @@ function init(){
     renderCatalog();
     renderCart();
     updateBadge();
+    cloudLoadProducts().then(()=>{ renderCatalog(); if(isAdmin()) renderAdmin(); });
 }
 
 init();
