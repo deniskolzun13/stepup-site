@@ -288,8 +288,9 @@ async function sendOrderEmail(order){
     try{
         const lines = order.items.map(i=>`${i.name} | размер ${i.size} | ${i.qty} шт. | ${fmt(i.price*i.qty)}`).join('\n');
         const payload = {
-            _subject:`🛒 Новый заказ ${order.id} — ${CONFIG.shopName}`,
-            _template:'table',
+            access_key: '8f962f1c-4c8e-4354-8035-73695482bb94',
+            subject: `🛒 Новый заказ ${order.id} — ${CONFIG.shopName}`,
+            from_name: 'Сайт Step Up',
             'Номер заказа': order.id,
             'Дата': new Date(order.date).toLocaleString('ru-RU'),
             'Имя': order.customer.name,
@@ -300,12 +301,13 @@ async function sendOrderEmail(order){
             'Состав заказа (товар / размер / кол-во / сумма)': lines,
             'ИТОГО': fmt(order.total)
         };
-        const r = await fetch('https://formsubmit.co/ajax/'+CONFIG.adminEmail, {
+        const r = await fetch('https://api.web3forms.com/submit', {
             method:'POST',
             headers:{'Content-Type':'application/json','Accept':'application/json'},
             body: JSON.stringify(payload)
         });
-        return r.ok;
+        const j = await r.json().catch(()=>({}));
+        return r.ok && j.success === true;
     }catch(e){ return false; }
 }
 
@@ -342,7 +344,7 @@ function submitOrder(){
     sendOrderEmail(order).then(ok=>{
         $('successText').textContent = ok
             ? 'Спасибо! Письмо с составом заказа отправлено на e-mail магазина. Мы свяжемся с вами в ближайшее время.'
-            : 'Спасибо! Заказ сохранён в админ-панели. Чтобы письма приходили на почту — укажите ваш e-mail в CONFIG (верх скрипта, сервис FormSubmit).';
+            : 'Спасибо! Заказ принят и сохранён в админ-панели магазина. Мы свяжемся с вами в ближайшее время.';
         toast(ok ? 'Письмо с заказом отправлено на e-mail' : 'Заказ сохранён в админ-панели', ok);
     });
 }
