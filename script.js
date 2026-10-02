@@ -288,7 +288,7 @@ async function sendOrderEmail(order){
     try{
         const lines = order.items.map(i=>`${i.name} | размер ${i.size} | ${i.qty} шт. | ${fmt(i.price*i.qty)}`).join('\n');
         const payload = {
-            access_key: '8893169f-d2ed-4e86-a1e7-9feb707a2f0a',
+            access_key: '0915b953-58fb-411b-9057-ae66163ebe0b',
             subject: `🛒 Новый заказ ${order.id} — ${CONFIG.shopName}`,
             from_name: 'Сайт Step Up',
             'Номер заказа': order.id,
